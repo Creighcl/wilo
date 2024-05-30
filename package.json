@@ -1,0 +1,22 @@
+{
+  "name": "wilo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "pro": "./bin/projects.js",
+    "task": "./bin/tasks.js",
+    "wilo": "./bin/wilo.js",
+    "note": "./bin/notes.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "commander": "^12.1.0",
+    "date-fns": "^3.6.0"
+  }
+}
