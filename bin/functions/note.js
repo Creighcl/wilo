@@ -65,6 +65,17 @@ const editNote = (key, newText) => {
     savedb(db);
 }
 
+const redateNote = (key, newDate) => {
+    const note = db.projects.map(p => p.notes).flat().find(t => t.key === key.toUpperCase());
+    if (!note) {
+        log(error('Note not found'));
+        return;
+    }
+    note.created = newDate;
+    savedb(db);
+
+}
+
 const deleteNote = (key) => {
     const project = db.projects.find(p => p.notes.find(t => t.key === key.toUpperCase()));
     if (!project) {
@@ -80,5 +91,6 @@ module.exports = {
     createNote,
     listNotes,
     editNote,
-    deleteNote
+    deleteNote,
+    redateNote
 };

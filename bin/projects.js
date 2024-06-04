@@ -12,7 +12,8 @@ const {
     deleteProject,
     changeProjectStatus,
     listProjectTasks,
-    showProjectTree
+    showProjectTree,
+    setProjectTarget
 } = require('./functions/project');
 
 
@@ -83,5 +84,19 @@ program.command('tree')
     .action((options) => {
         showProjectTree(options.id, !(options.all));
     });
+
+program.command('target')
+    .description('Add this project to target list')
+    .argument('<Key>', 'project key')
+    .action((str) => {
+        setProjectTarget(str, true);
+    });
+
+program.command('untarget')
+  .description('Remove this project to target list')
+  .argument('<Key>', 'project key')
+  .action((str) => {
+      setProjectTarget(str, false);
+  });
 
 program.parse();

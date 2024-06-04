@@ -8,7 +8,8 @@ const {
     createNote,
     listNotes,
     editNote,
-    deleteNote
+    deleteNote,
+    redateNote
 } = require('./functions/note');
 
 program
@@ -37,6 +38,14 @@ program.command('edit')
     .argument('<Text>', 'new text')
     .action((key, text) => {
         editNote(key, text);
+    });
+
+program.command('redate')
+    .description('Redate a Note')
+    .argument('<Key>', 'note key')
+    .argument('<Text>', 'new text')
+    .action((key, text) => {
+        redateNote(key, text);
     });
 
 program.command('rm')

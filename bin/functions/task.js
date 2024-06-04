@@ -5,22 +5,21 @@ const chalk = require('chalk');
 const idText = chalk.bold.greenBright;
 const idText2 = chalk.bold.blueBright;
 const error = chalk.bold.red;
+const targetText = chalk.bgYellow.black;
 
 const statusColoring = (status) => {
     switch (status) {
         case 'open':
-            return chalk.white(status);
+            return status;
         case 'closed':
             return chalk.bold.red(status);
-        case 'next':
-            return chalk.bold.black.bgGreenBright(status);
         default:
-            return chalk.bold.magenta(status);
+            return chalk.bold.bgMagentaBright.white(status);
     }
 };
 
 const createFourCharacterId = () => {
-    const chars = 'ABCDEFGHJKLMNOPQRSTUVWXYZ023456789';
+    const chars = 'ACDEFGHJKLMNPQRSTUVWXYZ023456789';
     
     const taskIds = db.projects.map(p => p.tasks).flat().filter(x => x).map(t => t.key);
     while (true) {
@@ -61,13 +60,12 @@ const createTask = (key, tname) => {
 };
 
 const listTasks = (tasks) => {
-    (tasks || []).forEach(({ name, key, status, projectKey }) => {
-        console.log(
-            idText(projectKey),
-            idText2(key),
-            `\t${stringToSetLength(name, 50)}\t`,
-            statusColoring(`${status}`)
-        );
+    (tasks || []).forEach(({ name, key, status, projectKey, target }) => {
+        let msg = `${idText(projectKey)} ${idText2(key)} \t${stringToSetLength(name, 50)}\t ${statusColoring(status)}`;
+        if (target) {
+            msg = targetText(msg);
+        }
+        console.log(msg);
       });
 };
 
@@ -103,11 +101,46 @@ const changeTaskStatus = (key, newStatus) => {
     savedb(db);
 };
 
+const setTaskTarget = (key, target) => {
+    const task = db.projects.map(p => p.tasks).flat().find(t => t.key === key.toUpperCase());
+    if (!task) {
+        log(error('Task not found'));
+        return;
+    }
+    task.target = target;
+    savedb(db);
+};
+
+const moveTask = (key, newProjectKey) => {
+    const task = db.projects.map(p => p.tasks).flat().find(t => t.key === key.toUpperCase());
+    if (!task) {
+        log(error('Task not found'));
+        return;
+    }
+    const projectOld = db.projects.find(p => p.key === task.projectKey.toUpperCase());
+    if (!projectOld) {
+        log(error('Project not found'));
+        return;
+    }
+
+    task.projectKey = newProjectKey.toUpperCase();
+
+    const projectNew = db.projects.find(p => p.key === newProjectKey.toUpperCase());
+    projectNew.tasks.push(task);
+
+    const taskIndex = projectOld.tasks.findIndex(t => t.key === key.toUpperCase());
+    projectOld.tasks.splice(taskIndex, 1);
+
+    savedb(db);
+}
+
 
 module.exports = {
     createTask,
     listTasks,
     renameTask,
     deleteTask,
-    changeTaskStatus
+    changeTaskStatus,
+    setTaskTarget,
+    moveTask
 };

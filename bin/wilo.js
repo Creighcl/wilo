@@ -9,11 +9,13 @@ program
   .description('WILO - Where I Left Off')
   .version('1.0.0');
 
+
 program.command('ls', { isDefault: true })
     .description('Where I Left Off')
-    .action(() => {
+    .option('-a, --all', 'Show all statuses')
+    .action((options) => {
         const { showProjectTree } = require('./functions/project');
-        showProjectTree(null, true);
+        showProjectTree(null, true, options.all);
     });
 
 program.command('init')
@@ -26,5 +28,12 @@ program.command('init')
             });
         }
     });
+
+program.command('t')
+    .description('WILO Targets')
+    .action(() => {
+        const { showTargetTree } = require('./functions/project');
+        showTargetTree();
+    })
 
 program.parse();

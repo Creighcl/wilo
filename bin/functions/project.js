@@ -6,23 +6,22 @@ const { listTasks } = require('./task');
 const { listNotes } = require('./note');
 const idText = chalk.bold.greenBright;
 const error = chalk.bold.red;
+const targetText = chalk.bgYellow.black;
 
 const statusColoring = (status) => {
     switch (status) {
         case 'open':
-            return chalk.white(status);
+            return status;
         case 'closed':
             return chalk.bold.red(status);
-        case 'next':
-            return chalk.bold.greenBright(status);
         default:
-            return chalk.bold.magenta(status);
+            return chalk.bold.bgMagentaBright.white(status);
     }
 };
 
 
 const createFourCharacterId = () => {
-    const chars = 'ABCDEFGHJKLMNOPQRSTUVWXYZ023456789';
+    const chars = 'ACDEFGHJKLMNPQRSTUVWXYZ023456789';
     const exists = true;
     
     while (exists) {
@@ -52,15 +51,20 @@ const createProject = (pname) => {
         created: new Date().toISOString(),
         status: 'open',
         tasks: [],
-        notes: []
+        notes: [],
+        target: false
     });
     savedb(db);
     log(error(`New Project: ${pname} (${newKey})`));
 };
 
 const listProjects = (projects) => {
-    projects.forEach(({ name, key, status }) => {
-        console.log(idText(key), `\t${stringToSetLength(name, 50)} \t `, statusColoring(status));
+    projects.forEach(({ name, key, status, target }) => {
+        let msg = `${idText(key)} \t${stringToSetLength(name, 50)} \t ${statusColoring(status)}`;
+        if (target) {
+            msg = targetText(msg);
+        }
+        console.log(msg);
       });
 };
 
@@ -105,7 +109,7 @@ const listProjectTasks = (key) => {
     listTasks(tasks);
 };
 
-const showProjectTree = (key, hideClosed) => {
+const showProjectTree = (key, hideClosed, showClosedTasks) => {
     let projects = db.projects;
 
     if (key) {
@@ -123,12 +127,41 @@ const showProjectTree = (key, hideClosed) => {
 
     projects.forEach(project => {
         listProjects([project]);
-        const tasks = project.tasks;
+        let tasks = project.tasks;
+        if (!key && !showClosedTasks) {
+            tasks = tasks.filter(t => t.status !== 'closed');
+        }
         listTasks(tasks);
         listNotes(project.key);
         console.log('');
     });
-}
+};
+
+const showTargetTree = () => {
+    let projects = db.projects;
+
+    projects.forEach(project => {
+        if (!project.tasks.some(t => t.target)) {
+            return;
+        }
+
+        listProjects([project]);
+        const tasks = project.tasks.filter(t => t.target);
+        listTasks(tasks);
+        listNotes(project.key);
+        console.log('');
+    });
+};
+
+const setProjectTarget = (key, target) => {
+    const project = db.projects.find(p => p.key === key.toUpperCase());
+    if (!project) {
+        log(error('Project not found'));
+        return;
+    }
+    project.target = target;
+    savedb(db);
+};
 
 module.exports = {
     createProject,
@@ -137,5 +170,7 @@ module.exports = {
     deleteProject,
     changeProjectStatus,
     listProjectTasks,
-    showProjectTree
+    showProjectTree,
+    setProjectTarget,
+    showTargetTree
 };

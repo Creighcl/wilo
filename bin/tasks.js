@@ -10,7 +10,9 @@ const {
     listTasks,
     renameTask,
     deleteTask,
-    changeTaskStatus
+    changeTaskStatus,
+    setTaskTarget,
+    moveTask
 } = require('./functions/task');
 
 
@@ -80,6 +82,28 @@ program.command('block')
     .argument('<BlockerKey>', 'blocker task key')
     .action((key, blockerKey) => {
         changeTaskStatus(key, `blocked(${blockerKey})`);
+    });
+
+program.command('target')
+    .description('Add this task to target list')
+    .argument('<Key>', 'task key')
+    .action((str) => {
+        setTaskTarget(str, true);
+    });
+
+program.command('untarget')
+    .description('Remove this task from target list')
+    .argument('<Key>', 'task key')
+    .action((str) => {
+        setTaskTarget(str, false);
+    });
+
+program.command('mv')
+    .description('Move a Task to a different project')
+    .argument('<Key>', 'task key')
+    .argument('<ProjectKey>', 'project key')
+    .action((key, projectKey) => {
+        moveTask(key, projectKey);
     });
 
 program.parse();

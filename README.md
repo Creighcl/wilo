@@ -5,9 +5,10 @@ Manage work through the CLI. Converting my notecard system into something re-usa
 Intent is to open this in a terminal on my home or work laptop and just type `wilo` and get a glance of my objectives, what's ready to work, and what the very next actionable items are on each.
 
 ### Installation
+- Requires NodeJS 8+
 - Clone the repo
 - `npm install && npm link && wilo init`
-- Create your first project: `proj add "My first project"`
+- Create your first project: `pro add "My first project"`
 
 
 ### Structure
@@ -19,8 +20,8 @@ Intent is to open this in a terminal on my home or work laptop and just type `wi
   - A task can be closed, open, blocked, or NEXT
 
 ### Commands
-- Use `wilo` to get a look at what needs doing. This is a shortcut for `proj tree`
-- Use `proj help` for a list of project-level commands
+- Use `wilo` to get a look at what needs doing. This is a shortcut for `pro tree`
+- Use `pro help` for a list of project-level commands
 - Use `task help` for a list of task-level commands
 - Use `note help` for a list of note-level commands
 
