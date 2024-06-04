@@ -3,10 +3,18 @@ const db = require('../data/wilo.json');
 const { log } = console;
 const chalk = require('chalk');
 const { listTasks } = require('./task');
+const { listMilestones } = require('./milestone');
 const { listNotes } = require('./note');
 const idText = chalk.bold.greenBright;
 const error = chalk.bold.red;
-const targetText = chalk.bgYellow.black;
+const targetText = (isTarget) => isTarget ? chalk.magentaBright('**') : '  ';
+
+const centerStringToSetLength = (str, len) => {
+    const spaces = len - str.length;
+    const left = Math.floor(spaces / 2);
+    const right = spaces - left;
+    return ' '.repeat(left) + str + ' '.repeat(right);
+};
 
 const statusColoring = (status) => {
     switch (status) {
@@ -14,6 +22,8 @@ const statusColoring = (status) => {
             return status;
         case 'closed':
             return chalk.bold.red(status);
+        case 'next':
+            return chalk.bold.greenBright(status);
         default:
             return chalk.bold.bgMagentaBright.white(status);
     }
@@ -60,10 +70,8 @@ const createProject = (pname) => {
 
 const listProjects = (projects) => {
     projects.forEach(({ name, key, status, target }) => {
-        let msg = `${idText(key)} \t${stringToSetLength(name, 50)} \t ${statusColoring(status)}`;
-        if (target) {
-            msg = targetText(msg);
-        }
+        let msg = chalk.bold.white(`${idText(key)}       ${targetText(target)}  ${stringToSetLength(name, 50)} \t${centerStringToSetLength(statusColoring(status), 10)}`);
+
         console.log(msg);
       });
 };
@@ -126,13 +134,17 @@ const showProjectTree = (key, hideClosed, showClosedTasks) => {
     }
 
     projects.forEach(project => {
+        console.log('');
         listProjects([project]);
         let tasks = project.tasks;
         if (!key && !showClosedTasks) {
             tasks = tasks.filter(t => t.status !== 'closed');
         }
+        console.log('▀▀▀▀▀▀▀▀▀▀▙▄▄▟▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▙▄▄▟▀▀▀▀▀▀▀▀▀▀┓');
+        listMilestones(project.key);
         listTasks(tasks);
         listNotes(project.key);
+        console.log(' '.repeat(82) + '┚');
         console.log('');
     });
 };
@@ -144,11 +156,14 @@ const showTargetTree = () => {
         if (!project.tasks.some(t => t.target)) {
             return;
         }
-
+        console.log('');
         listProjects([project]);
         const tasks = project.tasks.filter(t => t.target);
+        console.log('▀▀▀▀▀▀▀▀▀▀▙▄▄▟▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▙▄▄▟▀▀▀▀▀▀▀▀▀▀┓');
+        listMilestones(project.key);
         listTasks(tasks);
         listNotes(project.key);
+        console.log('');
         console.log('');
     });
 };

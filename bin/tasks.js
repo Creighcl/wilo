@@ -25,8 +25,9 @@ program.command('add')
     .description('Create a new Task')
     .argument('<Key>', 'project key')
     .argument('<Name>', 'task name')
-    .action((key, name) => {
-        createTask(key, name);
+    .option('-n, --next', 'Mark as next')
+    .action((key, name, options) => {
+        createTask(key, name, options.next);
     });
 
 program.command('ls')

@@ -10,7 +10,8 @@
     "pro": "./bin/projects.js",
     "task": "./bin/tasks.js",
     "wilo": "./bin/wilo.js",
-    "note": "./bin/notes.js"
+    "note": "./bin/notes.js",
+    "mile": "./bin/milestones.js"
   },
   "author": "",
   "license": "ISC",

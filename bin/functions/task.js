@@ -3,18 +3,28 @@ const db = require('../data/wilo.json');
 const { log } = console;
 const chalk = require('chalk');
 const idText = chalk.bold.greenBright;
-const idText2 = chalk.bold.blueBright;
+const idText2 = chalk.bold.yellowBright;
 const error = chalk.bold.red;
-const targetText = chalk.bgYellow.black;
+const targetText = (isTarget) => isTarget ? chalk.bold.magenta('>>>>') : '    ';
+
+const centerStringToSetLength = (str, len) => {
+    const spaces = len - str.length;
+    const left = Math.floor(spaces / 2);
+    const right = spaces - left;
+    return ' '.repeat(left) + str + ' '.repeat(right);
+};
 
 const statusColoring = (status) => {
+    const txt = centerStringToSetLength(status, 8);
     switch (status) {
         case 'open':
-            return status;
+            return txt;
         case 'closed':
-            return chalk.bold.red(status);
+            return chalk.bold.red(txt);
+        case 'next':
+            return chalk.bold.greenBright(txt);
         default:
-            return chalk.bold.bgMagentaBright.white(status);
+            return chalk.bold.bgMagentaBright.white(txt);
     }
 };
 
@@ -42,7 +52,7 @@ const savedb = (db) => fs.writeFile('./bin/data/wilo.json', JSON.stringify(db, n
     if (err) return console.log(err);
   });
 
-const createTask = (key, tname) => {
+const createTask = (key, tname, isNext = false) => {
     const project = db.projects.find(p => p.key === key.toUpperCase());
     if (!project) {
         log(error('Project not found'));
@@ -52,8 +62,7 @@ const createTask = (key, tname) => {
         name: tname,
         key: createFourCharacterId(),
         created: new Date().toISOString(),
-        status: 'open',
-        next: false,
+        status: isNext ? 'next' : 'open',
         projectKey: key.toUpperCase()
     });
     savedb(db);
@@ -61,10 +70,8 @@ const createTask = (key, tname) => {
 
 const listTasks = (tasks) => {
     (tasks || []).forEach(({ name, key, status, projectKey, target }) => {
-        let msg = `${idText(projectKey)} ${idText2(key)} \t${stringToSetLength(name, 50)}\t ${statusColoring(status)}`;
-        if (target) {
-            msg = targetText(msg);
-        }
+        let msg = `${idText(projectKey)} ${idText2(key)} ${targetText(target)} ${stringToSetLength(name, 50)}\t ${statusColoring(status)} ┃`;
+
         console.log(msg);
       });
 };

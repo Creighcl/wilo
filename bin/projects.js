@@ -82,7 +82,7 @@ program.command('tree')
     .option('-i, --id [Key]', 'project key')
     .option('-a, --all', 'Show all projects')
     .action((options) => {
-        showProjectTree(options.id, !(options.all));
+        showProjectTree(options.id, !(options.all), !!(options.all));
     });
 
 program.command('target')

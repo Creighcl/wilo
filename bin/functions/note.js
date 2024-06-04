@@ -4,8 +4,8 @@ const { format } = require('date-fns');
 const { log } = console;
 const chalk = require('chalk');
 const idText = chalk.bold.greenBright;
-const idText2 = chalk.bold.magentaBright;
-const dateText = chalk.gray;
+const idText2 = chalk.bold.cyanBright;
+const dateText = chalk.cyanBright;
 const error = chalk.bold.red;
 
 const createFourCharacterId = () => {
@@ -22,6 +22,25 @@ const createFourCharacterId = () => {
             return result;
         }
     }
+};
+
+const forceStringToLength = (str, len) => {
+    return str.length < len ? str + ' '.repeat(len - str.length) : str.substr(0, len);
+};
+
+const breakStringInMultipleLines = (str, len) => {
+    const words = str.split(' ');
+    const lines = [];
+    let line = '';
+    for (let i = 0; i < words.length; i++) {
+        if ((line + words[i]).length > len) {
+            lines.push(line);
+            line = '';
+        }
+        line += words[i] + ' ';
+    }
+    lines.push(forceStringToLength(line, 52));
+    return lines;
 };
 
 const savedb = (db) => fs.writeFile('./bin/data/wilo.json', JSON.stringify(db, null, 2), function writeJSON(err) {
@@ -46,13 +65,14 @@ const createNote = (key, txt) => {
 const listNotes = (projectId) => {
     const project = db.projects.find(p => p.key === projectId.toUpperCase());
     (project.notes || []).forEach(({ message, key, created }) => {
-        console.log(
-            idText(projectId),
-            idText2(key),
-            dateText(format(created, 'MMMdd`yy')),
-            idText2('>>> ') + message
-        );
-      });
+        const line1Start = `${idText(projectId)} ${idText2(key)}      `;
+        const line1End = '      ' + dateText(format(created, 'MMMdd`yy') + chalk.white(' ┃'));
+        const lines = breakStringInMultipleLines(message, 52);
+        console.log(line1Start + lines[0] + line1End);
+        for (let i = 1; i < lines.length; i++) {
+            console.log(' '.repeat(15) + lines[i] + '               ┃');
+        }
+    });
 };
 
 const editNote = (key, newText) => {
